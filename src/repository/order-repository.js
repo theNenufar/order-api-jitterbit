@@ -26,7 +26,7 @@ exports.createOrder = async (order) => {
         ]);
     }
     return order;
-}
+};
 
 exports.getOrder = async (orderId) => {
     const orderQuery = `
@@ -39,7 +39,7 @@ exports.getOrder = async (orderId) => {
         return null;
     }
 
-    const order = orderResult.rows[0]
+    const order = orderResult.rows[0];
 
     const itemsQuery = `
         SELECT * FROM items WHERE orderId = $1
@@ -50,4 +50,25 @@ exports.getOrder = async (orderId) => {
     order.items = items.rows;
 
     return order;
-}
+};
+
+exports.getOrders = async () => {
+    const orderQuery = `
+        SELECT * FROM orders
+    `;
+
+    const orderResult = await pool.query(orderQuery);
+    const orders = orderResult.rows;
+
+    for (const order of orders) {
+        const itemsQuery = `
+            SELECT * FROM items WHERE orderId = $1
+        `;
+
+        const items = await pool.query(itemsQuery, [order.orderId]);
+
+        order.items = items.rows;
+    }
+
+    return orders;
+};

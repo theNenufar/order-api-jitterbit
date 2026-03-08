@@ -19,8 +19,12 @@ exports.createOrder = async (orderRequest) => {
     };
 
     return await orderRepository.createOrder(order);
-}
+};
 
 exports.getOrder = async (orderId) => {
     return await orderRepository.getOrder(orderId);
-}
+};
+
+exports.getOrders = async () => {
+    return await orderRepository.getOrders();
+};

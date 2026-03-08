@@ -24,3 +24,13 @@ exports.getOrder = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+exports.getOrders = async (req, res) => {
+    try {
+        const orders = await orderService.getOrders();
+        res.status(200).json(orders);
+    } catch (e) {
+        console.log(e)
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
