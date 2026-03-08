@@ -1,36 +1,50 @@
 const pool = require("../config/database");
 
 exports.createOrder = async (order) => {
-    const orderQuery = `
-        INSERT INTO orders (orderId, value, creationDate)
-        VALUES ($1, $2, $3)
-    `;
+    const client = await pool.connect();
+    try {
+        await client.query("BEGIN");
 
-    await pool.query(orderQuery, [
-        order.orderId,
-        order.value,
-        order.creationDate
-    ]);
+        const orderQuery = `
+            INSERT INTO orders (orderId, value, creationDate)
+            VALUES ($1, $2, $3)
+        `;
 
-    const itemQuery = `
-        INSERT INTO items (orderId, productId, quantity, price)
-        VALUES ($1, $2, $3, $4)
-    `;
-
-    for (const item of order.items) {
-        await pool.query(itemQuery, [
+        await pool.query(orderQuery, [
             order.orderId,
-            item.productId,
-            item.quantity,
-            item.price
+            order.value,
+            order.creationDate
         ]);
+
+        const itemQuery = `
+            INSERT INTO items (orderId, productId, quantity, price)
+            VALUES ($1, $2, $3, $4)
+        `;
+
+        for (const item of order.items) {
+            await pool.query(itemQuery, [
+                order.orderId,
+                item.productId,
+                item.quantity,
+                item.price
+            ]);
+        }
+
+        await client.query("COMMIT");
+
+        return order;
+    } catch (e) {
+        await client.query("ROLLBACK");
+        throw e;
+    } finally {
+        client.release();
     }
-    return order;
 };
 
 exports.getOrder = async (orderId) => {
     const orderQuery = `
-        SELECT * FROM orders WHERE orderId = $1
+        SELECT orderId AS "orderId", value, creationDate AS "creationDate"
+        FROM orders WHERE orderId = $1
     `;
 
     const orderResult = await pool.query(orderQuery, [orderId]);
@@ -42,7 +56,8 @@ exports.getOrder = async (orderId) => {
     const order = orderResult.rows[0];
 
     const itemsQuery = `
-        SELECT * FROM items WHERE orderId = $1
+        SELECT orderId AS "orderId", productId AS "productId", quantity, price
+        FROM items WHERE orderId = $1
     `;
 
     const items = await pool.query(itemsQuery, [orderId]);
@@ -54,7 +69,8 @@ exports.getOrder = async (orderId) => {
 
 exports.getOrders = async () => {
     const orderQuery = `
-        SELECT * FROM orders
+        SELECT orderId AS "orderId", value, creationDate AS "creationDate"
+        FROM orders
     `;
 
     const orderResult = await pool.query(orderQuery);
@@ -62,7 +78,8 @@ exports.getOrders = async () => {
 
     for (const order of orders) {
         const itemsQuery = `
-            SELECT * FROM items WHERE orderId = $1
+            SELECT orderId AS "orderId", productId AS "productId", quantity, price
+            FROM items WHERE orderId = $1
         `;
 
         const items = await pool.query(itemsQuery, [order.orderId]);
