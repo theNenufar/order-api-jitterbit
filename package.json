@@ -1,0 +1,29 @@
+{
+  "name": "order-api-jitterbit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theNenufar/order-api-jitterbit.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/theNenufar/order-api-jitterbit/issues"
+  },
+  "homepage": "https://github.com/theNenufar/order-api-jitterbit#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
