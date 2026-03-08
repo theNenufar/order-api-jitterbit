@@ -5,5 +5,6 @@ const orderController = require("../controller/order-controller");
 router.post("/", orderController.createOrder);
 router.get("/:orderId", orderController.getOrder);
 router.get("/list", orderController.getOrders);
+router.put("/:orderId", orderController.updateOrder);
 
 module.exports = router;
