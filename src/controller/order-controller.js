@@ -2,8 +2,23 @@ const orderService = require("../service/order-service");
 
 exports.createOrder = async (req, res) => {
     try {
-        const orderRequest = await orderService.createOrder(req.body);
-        res.status(201).json(orderRequest);
+        const order = await orderService.createOrder(req.body);
+        res.status(201).json(order);
+    } catch (e) {
+        console.log(e)
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+exports.getOrder = async (req, res) => {
+    try {
+        const order = await orderService.getOrder(req.params.orderId);
+
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        res.status(200).json(order);
     } catch (e) {
         console.log(e)
         res.status(500).json({ message: "Internal server error" });

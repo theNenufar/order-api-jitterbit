@@ -27,3 +27,27 @@ exports.createOrder = async (order) => {
     }
     return order;
 }
+
+exports.getOrder = async (orderId) => {
+    const orderQuery = `
+        SELECT * FROM orders WHERE orderId = $1
+    `;
+
+    const orderResult = await pool.query(orderQuery, [orderId]);
+
+    if (orderResult.rows.length === 0) {
+        return null;
+    }
+
+    const order = orderResult.rows[0]
+
+    const itemsQuery = `
+        SELECT * FROM items WHERE orderId = $1
+    `;
+
+    const items = await pool.query(itemsQuery, [orderId]);
+
+    order.items = items.rows;
+
+    return order;
+}
