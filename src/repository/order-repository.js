@@ -76,7 +76,7 @@ exports.getOrders = async () => {
 exports.updateOrder = async (order) => {
     const client = await pool.connect();
     try {
-        await client.query('BEGIN');
+        await client.query("BEGIN");
 
         const updateQuery = `
             UPDATE orders SET value = $1 WHERE orderId = $2
@@ -96,10 +96,36 @@ exports.updateOrder = async (order) => {
             await client.query(itemQuery, [order.orderId, item.productId, item.quantity, item.price]);
         }
 
-        await client.query('COMMIT');
+        await client.query("COMMIT");
         return order;
     } catch (e) {
-        await client.query('ROLLBACK');
+        await client.query("ROLLBACK");
+        throw e;
+    } finally {
+        client.release();
+    }
+};
+
+exports.deleteOrder = async (orderId) => {
+    const client = await pool.connect();
+    try {
+        await client.query("BEGIN");
+
+        const deleteItemsQuery = `
+            DELETE FROM items WHERE orderId = $1
+        `;
+        await client.query(deleteItemsQuery, [orderId]);
+
+        const deleteOrderQuery = `
+            DELETE FROM orders WHERE orderId = $1
+        `;
+        await client.query(deleteOrderQuery, [orderId]);
+
+        await client.query("COMMIT");
+
+        return true;
+    } catch (e) {
+        await client.query("ROLLBACK");
         throw e;
     } finally {
         client.release();

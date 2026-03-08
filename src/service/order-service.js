@@ -47,3 +47,12 @@ exports.updateOrder = async (orderId, orderUpdateRequest) => {
 
     return await orderRepository.updateOrder(updatedOrder);
 };
+
+exports.deleteOrder = async (orderId) => {
+    const foundOrder = await orderRepository.getOrder(orderId);
+    if (!foundOrder) {
+        return null;
+    }
+
+    return await orderRepository.deleteOrder(orderId);
+};
